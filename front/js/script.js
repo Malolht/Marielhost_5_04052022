@@ -1,7 +1,7 @@
 
 //Création de la fonction qui récupère les produits de l'API par le fetch
 async function getProducts() {
-    return fetch("http://localhost:3000/api/products", myInit)
+    return fetch("http://localhost:3000/api/products")
     .then(function(res) {
     if (res.ok) {
       return res.json();
@@ -16,7 +16,7 @@ async function getProducts() {
     });
 }
 
-//Création de la fonction qui boucle dans le tableau récupéré
+//Création de la fonction itemsKanap qui boucle dans le tableau récupéré et ajoute les produits dans le DOM
 async function itemsKanap() {
     const dataResults = await getProducts();
     for (let i of dataResults) {
@@ -50,7 +50,7 @@ async function itemsKanap() {
     }
 }
 
-//Appel de la fonction
+//Appel de la fonction itemsKanap
 itemsKanap();
   
 

@@ -1,150 +1,124 @@
+//URL search param
 
-/**
- *Récupération de l'URL et de la variable (id)
- *l'id fait le lien entre un produit de la page d’accueil et la page Produit 
- */
-
-let str = window.location.href ;
-let url = new URL(str);
-let search_params = new URLSearchParams(url.search); 
-if(search_params.has("id")) {
-  var idKanap = search_params.get("id");
-  //affichage de l'id concerné dans la console
-  console.log("id du produit :" + idKanap)
+var str = window.location.href;
+var url = new URL(str);
+var search_params = new URLSearchParams(url.search); 
+if(search_params.has('id')) {
+  var idKanap = search_params.get('id');
+  console.log("id de l'aticle :" + idKanap);
 }
 
-//Appel de la fonction
-getProductById();
-
-//Récupération des informations du produit selon son id
-function getProductById() {
-    fetch("http://localhost:3000/api/products/" + idKanap)
+//On fetch pour récupérer les données de l'API en fonction de l'id produit
+fetch("http://localhost:3000/api/products/" + idKanap)
     .then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
+        if (res.ok) {
+            //conversion format json
+            return res.json();
+        }
     })
-    .then(async function(value) {
-        //réupération des données dans la variable article     
+    .then (async function(value) {
+        console.log(value);
+        //récupération valeurs dans variable article
         var article = await value;
-        console.log(article);
-        //appel de la fonction displayKanap en lui passant le paramètre (article)
-        displayKanap(article);
-      })
+        //appel de la fonction displayProductById avec paramètre article
+        displayProductById(article) ;
+    })
     .catch(function(err) {
-        console.log("une erreur est survenue avec le serveur");
+        console.log("erreur dans le script");
+        alert("oups, une erreur est survenue");
     });
+
+//Affichage du produit dans la page produit en modifiant le DOM    
+function displayProductById(article) {
+
+    //Alimentation des éléments du DOM par innerHTML
+    document.querySelector("title").innerHTML = article.name;
+    document.getElementById("title").innerHTML = article.name;
+    document.getElementById("price").innerHTML = article.price;
+    document.getElementById("description").innerHTML = article.description; 
+
+    //Ajout élément img dans le DOM
+    let imgElement = document.createElement("img");
+    document.querySelector(".item__img").appendChild(imgElement);
+    imgElement.src = article.imageUrl;
+    imgElement.alt = article.altTxt;
+
+   //Ajout élément option couleur dans le DOM
+   for (let i of article.colors) {
+   let optionElement = document.createElement("option");
+   document.getElementById("colors").appendChild(optionElement);
+   optionElement.value = i;
+   optionElement.innerHTML = i;
+   }
+   //appel de la fonction addProductCart avec un paramètre article
+   addProductCart(article);       
 }
 
-//Ajout des données du produit dans le DOM
-function displayKanap(article){
+//Gestion du panier
+function addProductCart (article) {
+    //Récupération du bouton ajout au panier
+    const buttonCart = document.getElementById("addToCart");
+    //Ecouter l'évenement au clic sur le bouton
+    buttonCart.addEventListener("click", function() {
 
-    //ajout des éléments dans le DOM
-    let imgObject = document.createElement("img");
-    document.querySelector(".item__img").appendChild(imgObject);
-    imgObject.src = article.imageUrl;
-    imgObject.alt = article.altTxt;
+        //Récupération de la couleur et de la quantité de l'article choisi
+        let colorPicked = document.getElementById("colors").value;
+        let quantityPicked = document.getElementById("quantity").value;
 
-    let nameObject = document.getElementById("title");
-    nameObject.innerHTML = article.name;
+        //Conditionnement de l'évènement si couleur et quantité valide
+        if (quantityPicked != 0 && quantityPicked <= 100 && quantityPicked > 0 && colorPicked != 0) {
+        
+            //Récupération des données produit à ajouter au panier, sous forme d'objet
+            let kanapChoice = {
+                color : colorPicked,
+                quantity : Number(quantityPicked),
+                id : idKanap,
+                name : article.name,
+                price : article.price,
+                image : article.imageUrl,
+                description : article.description,
+                texteAlt : article.altTxt,
+            };
 
-    let priceObject = document.getElementById("price");
-    priceObject.innerHTML = article.price;
+            //Initialisation du localStorage
+            let dataLocalStorage = JSON.parse(localStorage.getItem("kanapChoice"));
 
-    let descriptionObject = document.getElementById("description");
-    descriptionObject.innerHTML = article.description;
+            
+            //Ajout des articles au panier
+            //Lorsque le localStorage est vide (premier ajout)
+            if (dataLocalStorage === null) {
+                dataLocalStorage = [];
+                dataLocalStorage.push(kanapChoice);
+                localStorage.setItem("kanapChoice", JSON.stringify(dataLocalStorage));
+                alert ("Votre premier article vous attend dans le panier !");
+                console.table(dataLocalStorage);
+            } 
+            //Lorque que le localStorage n'est pas vide
+            else {
+                //Vérification des doublons présents dans le panier (id et couleur)
+                let checkItem = dataLocalStorage.find(element => element.id === idKanap && element.color === colorPicked);
 
-    let titleObject = document.querySelector("title");
-    titleObject.innerHTML = article.name;
+                //Si l'article est déjà présent à l'identique dans le panier
+                if (checkItem) {
+                    let NewQuantity = 
+                    parseInt(kanapChoice.quantity) + parseInt(checkItem.quantity);
+                    checkItem.quantity = NewQuantity;
+                    localStorage.setItem("kanapChoice", JSON.stringify(dataLocalStorage));
+                    console.table(dataLocalStorage);
+                }else{
+                    //si l'article n'est pas encore présent à l'identique dans le panier
+                    dataLocalStorage.push(kanapChoice);
+                    localStorage.setItem("kanapChoice", JSON.stringify(dataLocalStorage));
+                    alert ("Nouvel article ajouté au panier !");
+                    console.table(dataLocalStorage);
 
-    //Ajout du choix de couleur avec une boucle dans la constante article, ciblé sur le tableau "colors"
-    for (let i of article.colors) {
-        let colorObject = document.createElement("option");
-        document.querySelector("#colors").appendChild(colorObject);
-        colorObject.value = i;
-        colorObject.innerHTML = i;
-    }
+                }
 
-    //Appel de la fonction addProduct en lui passant le paramètre (article)
-    addProduct(article)
-}
+            }
 
-//Ajout d'un produit au panier
-function addProduct(article) {
-
-  //Récupération du bouton, de la quantité et de la couleur GETELEMENTBYID ???
-  const cartButton = document.querySelector("#addToCart");
-  const colorOption = document. querySelector("#colors");
-  const quantityInput = document.querySelector("#quantity");
-
-
-  //Ecouter le panier avec 2 conditions couleur non nulle et quantité entre 1 et 100
-  cartButton.addEventListener('click', function onClick(event) {
-
-    event.preventDefault();
-
-    //Récupération de la couleur de l'article
-    let colorChoice = colorOption.value;
-
-    //Récupération de la quantité de l'article
-    let quantityChoice = quantityInput.value;
-
-    //Conditionnement de l'évènement
-    if (colorChoice !=0 && quantityChoice >= 1 && quantityChoice <= 100 && quantityChoice !=0){
-
-      //Si condition respectée, création des données objet dataProduct
-      let dataProduct = {
-        id : idKanap,
-        color : colorChoice,
-        quantity: quantityChoice,
-        name : article.name,
-        price : article.price,
-        image : article.image,
-        description : article.description,
-        texteAlt : article.altTxt,   
-      };
-      
-
-      //Création du LocalStorage avec les données dataProduct et conversion des données en chaine de caractères
-      let myStorage = JSON.parse(localStorage.getItem("dataProduct"));
-
-      //Importation dans le local storage
-      //Si le localStorage contient au moins un produit
-      if (myStorage) {
-
-        //Vérification des doublons présents dans le panier (id et couleur)
-        let checkItem = myStorage.find(element => element.id === idKanap && element.color === colorChoice);
-        //Si doublon, on incrémente la quantité dans le localStorage
-        if (checkItem) {
-          let NewQuantity = 
-          parseInt(dataProduct.quantity) + parseInt(checkItem.quantity);
-          checkItem.quantity = NewQuantity;
-          localStorage.setItem("dataProduct", JSON.stringify(myStorage));
-          console.table(myStorage);
+        }else{
+            alert("Veuillez sélectionner une couleur et une quantité valide");
         }
 
-        //Si le produit commandé n'est pas dans le panier
-        else {
-          myStorage.push(dataProduct);
-          localStorage.setItem("dataProduct", JSON.stringify(myStorage));
-          alert ("Nouveau produit ajouté au panier !");
-          console.table(myStorage);
-        } 
-      }
-
-      //Si le localStorage est vide
-      else {
-        myStorage = [];
-        myStorage.push(dataProduct);
-        localStorage.setItem("dataProduct", JSON.stringify(myStorage));
-        alert ("Votre premier article vous attend dans le panier !");
-      }
-
-    }
-    else alert ("Oups ! Veuillez séléctionner une couleur et une quantité comprise entre 1-100");
-     
-  });
-
+    });
 }
-
-
