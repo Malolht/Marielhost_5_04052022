@@ -83,18 +83,17 @@ function addProductCart (article) {
             //Initialisation du localStorage
             let dataLocalStorage = JSON.parse(localStorage.getItem("kanapChoice"));
 
-            
-            //Ajout des articles au panier
-            //Lorsque le localStorage est vide (premier ajout)
+            /*Ajout des articles au panier
+            Lorsque le localStorage est vide (premier ajout)*/
             if (dataLocalStorage === null) {
                 dataLocalStorage = [];
                 dataLocalStorage.push(kanapChoice);
                 localStorage.setItem("kanapChoice", JSON.stringify(dataLocalStorage));
                 alert ("Votre premier article vous attend dans le panier !");
                 console.table(dataLocalStorage);
-            } 
+           
             //Lorque que le localStorage n'est pas vide
-            else {
+            }else{
                 //Vérification des doublons présents dans le panier (id et couleur)
                 let checkItem = dataLocalStorage.find(element => element.id === idKanap && element.color === colorPicked);
 
@@ -111,13 +110,12 @@ function addProductCart (article) {
                     localStorage.setItem("kanapChoice", JSON.stringify(dataLocalStorage));
                     alert ("Nouvel article ajouté au panier !");
                     console.table(dataLocalStorage);
-
                 }
-
             }
-
+        
+        //Si la couleur et la quantité ne sont pas valides
         }else{
-            alert("Veuillez sélectionner une couleur et une quantité valide");
+            alert("Oups... quantité ou couleur invalide !");
         }
 
     });
