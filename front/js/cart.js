@@ -1,5 +1,5 @@
 
-//Récupèration des données du localStorage dans une variable
+//Récupération des données du localStorage dans une variable
 let getDataStorage = JSON.parse(localStorage.getItem("kanapChoice"));
 console.table(getDataStorage);
 
@@ -132,5 +132,123 @@ function modifyQuantity() {
     });   
 }
 modifyQuantity();
+
+/*Gestion du formulaire
+Récupération des champs de formulaire*/
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const address = document.getElementById("address");
+const city = document.getElementById("city");
+const email = document.getElementById("email");
+
+//Regex
+let nameRegex = /^[a-zA-Z\-çñàéèêëïîôüù' ]{2,}$/;
+let addressRegex = /^[0-9a-zA-Z\-çñàéèêëïîôüù' ]{3,}$/;
+let cityRegex = /^[a-zA-Z\-'çñàéèêëïîôüù ]{2,}$/;
+let emailRegex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,3}$/;
+
+
+//On écoute l'évenement input du formulaire, validation du prénom
+firstName.addEventListener("change", function (event) {
+    event.preventDefault();
+    //Test de validation
+    if(nameRegex.test(firstName.value) == true) {
+        document.getElementById("firstNameErrorMsg").innerHTML ="ok";
+        return true;
+    } else {
+        document.getElementById("firstNameErrorMsg").innerHTML ="Veuillez renseigner un prénom valide";
+        return false;  
+    }
+});
+
+//Validation du nom
+lastName.addEventListener("input", function (event) {
+    event.preventDefault();
+    //Test de validation
+    if(nameRegex.test(lastName.value) == true) {
+        document.getElementById("lastNameErrorMsg").innerHTML ="ok";
+        return true;
+    } else {
+        document.getElementById("lastNameErrorMsg").innerHTML ="Veuillez renseigner un nom valide";
+        return false;  
+    }
+});
+
+//Validation de l'adresse
+address.addEventListener("input", function (event) {
+    event.preventDefault();
+    if(addressRegex.test(address.value) == true) {
+        document.getElementById("addressErrorMsg").innerHTML ="ok";
+        return true;
+    } else {
+        document.getElementById("addressErrorMsg").innerHTML ="Veuillez renseigner une adresse valide";
+        return false;  
+    }
+});
+
+//Validation de la ville
+city.addEventListener("input", function (event) {
+    event.preventDefault();
+    if(cityRegex.test(city.value) == true) {
+        document.getElementById("cityErrorMsg").innerHTML ="ok";
+        return true;
+    } else {
+        document.getElementById("cityErrorMsg").innerHTML ="Veuillez renseigner une ville valide";
+        return false;  
+    }
+});
+
+//Validation de l'email
+email.addEventListener("input", function (event) {
+        event.preventDefault();
+        if(emailRegex.test(email.value) == true) {
+            document.getElementById("emailErrorMsg").innerHTML ="ok";
+            return true;
+        } else {
+            document.getElementById("emailErrorMsg").innerHTML ="Veuillez renseigner une adresse valide";
+            return false;  
+        }
+});
+
+
+//On écoute l'évènement au clic sur le bouton commander
+let btnOrder = document.getElementById("order");
+
+btnOrder.addEventListener("click", function (event) {
+    event.preventDefault();
+    //si les informations sont validées par les regEx
+    if ( 
+        nameRegex.test(firstName.value) == true &&
+        nameRegex.test(lastName.value) == true &&
+        addressRegex.test(address.value) == true &&
+        nameRegex.test(city.value) == true &&
+        emailRegex.test(email.value) == true ) {
+
+            let idProducts = [];
+            for (let i = 0; i<getDataStorage.length;i++) {
+                idProducts.push(getDataStorage[i].id);
+            }
+            console.log(idProducts);
+
+            //Création de l'objet de contact
+            let contactObject = {
+                contactFirstName : firstName.value,
+                contactLastName : lastName.value,
+                contactAddress : address.value,
+                contactCity : city.value,
+                contactEmail : email.value,
+            };
+            console.log(contactObject);
+        } else {
+            alert("Oups ! Veuillez renseigner correctement vos coordonnées afin de valider la commande");
+        }
+});
+
+
+
+
+
+
+
 
 
