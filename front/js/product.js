@@ -1,5 +1,5 @@
-//URL search param
 
+//URL search param
 var str = window.location.href;
 var url = new URL(str);
 var search_params = new URLSearchParams(url.search); 
@@ -17,7 +17,6 @@ fetch("http://localhost:3000/api/products/" + idKanap)
         }
     })
     .then (async function(value) {
-        console.log(value);
         //récupération valeurs dans variable article
         var article = await value;
         //appel de la fonction displayProductById avec paramètre article
@@ -25,7 +24,7 @@ fetch("http://localhost:3000/api/products/" + idKanap)
     })
     .catch(function(err) {
         console.log("erreur dans le script");
-        alert("oups, une erreur est survenue");
+        alert("Une erreur est survenue avec le serveur");
     });
 
 //Affichage du produit dans la page produit en modifiant le DOM    
@@ -38,14 +37,14 @@ function displayProductById(article) {
     document.getElementById("description").innerHTML = article.description; 
 
     //Ajout élément img dans le DOM
-    let imgElement = document.createElement("img");
+    const imgElement = document.createElement("img");
     document.querySelector(".item__img").appendChild(imgElement);
     imgElement.src = article.imageUrl;
     imgElement.alt = article.altTxt;
 
    //Ajout élément option couleur dans le DOM
    for (let i of article.colors) {
-   let optionElement = document.createElement("option");
+   const optionElement = document.createElement("option");
    document.getElementById("colors").appendChild(optionElement);
    optionElement.value = i;
    optionElement.innerHTML = i;
@@ -62,8 +61,8 @@ function addProductCart (article) {
     buttonCart.addEventListener("click", function() {
 
         //Récupération de la couleur et de la quantité de l'article choisi
-        let colorPicked = document.getElementById("colors").value;
-        let quantityPicked = document.getElementById("quantity").value;
+        const colorPicked = document.getElementById("colors").value;
+        const quantityPicked = document.getElementById("quantity").value;
 
         //Conditionnement de l'évènement si couleur et quantité valide
         if (quantityPicked != 0 && quantityPicked <= 100 && quantityPicked > 0 && colorPicked != 0) {
@@ -74,7 +73,6 @@ function addProductCart (article) {
                 quantity : Number(quantityPicked),
                 id : idKanap,
                 name : article.name,
-                price : article.price,
                 image : article.imageUrl,
                 description : article.description,
                 texteAlt : article.altTxt,
@@ -117,6 +115,8 @@ function addProductCart (article) {
         }else{
             alert("Oups... quantité ou couleur invalide !");
         }
-
     });
 }
+
+
+//Gestion du formulaire
